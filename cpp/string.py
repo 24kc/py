@@ -37,6 +37,8 @@ class string:
 
 s = string("ABC傻逼")
 
+print(s)
+
 for c in s:
 	print(c, end=' ')
 print()
