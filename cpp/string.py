@@ -6,7 +6,7 @@ class string:
 	def __init__(self, s=''):
 		self.assign(s);
 
-	def __repr__(self):
+	def __str__(self):
 		return "".join(self.__data)
 
 	def assign(self, s):
@@ -14,6 +14,9 @@ class string:
 
 	def __getitem__(self, index):
 		return self.__data[index]
+
+	def data(self):
+		return self.__data
 
 	def __iter__(self):
 		self.index = 0
@@ -26,21 +29,54 @@ class string:
 		self.index += 1
 		return x
 
+	def empty(self):
+		return self.size() > 0
+
 	def size(self):
 		return len(self.__data)
 
-	def data(self):
-		return self.__data
+	def reverse(self):
+		self.__data.reverse()
+
+	def clear(self):
+		self.__data.clear()
+
+	def insert(self, index, c):
+		self.__data.insert(index, c)
+
+	def erase(self, index):
+		del self.__data[index]
+
+	def push_back(self, c):
+		self.__data.append(c)
+
+	def pop_back(self):
+		self.__data.pop()
+
+	def append(self, s):
+		self.__data.extend(list(s))
+
+	def substr(self, index, count):
+		s = string()
+		s.__data = self.__data[index:index+count]
+		return s
+
+	def swap(self, ks):
+		ks.__data,self.__data = self.__data,ks.__data
+
+	def find(self, c, index=0):
+		return self.__data.index(c, index)
 
 #
 # main()
 
 s = string("ABC傻逼")
 
-print(s)
-
 for c in s:
 	print(c, end=' ')
 print()
 
+s.append('sbsbDSB')
 
+print(s)
+print(s.find('b', 7))
