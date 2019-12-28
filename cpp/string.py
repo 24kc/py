@@ -65,18 +65,9 @@ class string:
 		ks.__data,self.__data = self.__data,ks.__data
 
 	def find(self, c, index=0):
-		return self.__data.index(c, index)
+		try:
+			return self.__data.index(c, index)
+		except ValueError:
+			return -1
 
-#
-# main()
 
-s = string("ABC傻逼")
-
-for c in s:
-	print(c, end=' ')
-print()
-
-s.append('sbsbDSB')
-
-print(s)
-print(s.find('b', 7))
