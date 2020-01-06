@@ -64,6 +64,19 @@ def decrypt(b):
 	return bytes(ba)
 
 
+#####################   rsa():    #######################
+
+
+# return key == public_key ? True : False
+def is_public(key):
+	return True if not is_private(key) else False
+
+
+# return key == private_key ? True : False
+def is_private(key):
+	return True if key.has_private() else False
+
+
 #####################   main():   #######################
 
 
