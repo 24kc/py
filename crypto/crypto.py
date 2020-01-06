@@ -7,7 +7,13 @@ __key = None
 __cipher = None
 __cipher_status = False
 
-
+# password: 密码
+# key_file_name: 密钥文件保存路径
+# return: 始终返回一个密钥
+# generate_key() 返回随机密钥
+# generate_key('ABCsb') 用密码'ABCsb'生成密钥
+# generate_key(None, 'sbc.key') 生成随机密钥, 并保存密钥为sbc.key
+# generate_key('ABCsb', 'sbc.key') 用密码'ABCsb'生成密钥, 并保存密钥为sbc.key
 def generate_key(password='', key_file_name=''):
 	ha = hashlib.md5()
 	if not password:
@@ -21,6 +27,8 @@ def generate_key(password='', key_file_name=''):
 	return key
 
 
+# key_file_name: 密钥文件保存路径
+# load_key('sbc.key') 从文件sbc.key加载密钥, 返回该密钥
 def load_key(key_file_name):
 	key = None
 	with open(key_file_name, 'rb') as key_file:
@@ -29,6 +37,7 @@ def load_key(key_file_name):
 	return key
 
 
+# 设置要使用的密钥key, 在下一次调用此函数前,加密解密都使用该密钥
 def fernet(key):
 	global __key, __cipher, __cipher_status
 	if (__key != key) or not __cipher_status:
@@ -37,6 +46,7 @@ def fernet(key):
 		__key = key
 
 
+# 加密bytes 返回bytes
 def encrypt(b):
 	global __cipher_status
 	if __cipher == None:
@@ -49,6 +59,7 @@ def encrypt(b):
 	return b
 
 
+# 解密bytes 返回bytes
 def decrypt(b):
 	global __cipher_status
 	if __cipher == None:
