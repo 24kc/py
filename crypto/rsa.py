@@ -12,6 +12,7 @@ __block_size_decrypt = 256
 __cipher = None
 
 
+# 返回一个密钥对, 请忽略此返回值, 总是使用load_key('f')加载密钥
 def generate_key(key_file_name=''):
 	rsa = RSA.generate(__key_bits)
 	if key_file_name:
