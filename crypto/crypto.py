@@ -6,10 +6,11 @@ from Crypto.Cipher import AES
 __key = None
 __cipher = None
 __cipher_status = False
+all_key_bits = (128, 192, 256)
 
 # password: 密码
 # key_file_name: 密钥文件保存路径
-# key_bits: must in (128, 192, 256)
+# key_bits: must in all_key_bits
 # return: 始终返回一个密钥
 # generate_key() 返回随机密钥
 # generate_key('ABCsb') 用密码'ABCsb'生成密钥
@@ -17,7 +18,7 @@ __cipher_status = False
 # generate_key('ABCsb', 'sbc.key') 用密码'ABCsb'生成密钥, 并保存密钥为sbc.key
 
 def generate_key(password='', key_file_name='', key_bits=128):
-	if key_bits not in (128, 192, 256):
+	if key_bits not in all_key_bits:
 		raise Exception('key_bits Error')
 	key_bytes = key_bits // 8
 
@@ -180,12 +181,12 @@ def main(argv):
 				key_bits_error = None
 				try:
 					key_bits = int(argv[optind])
-					if key_bits not in (128,192,256):
+					if key_bits not in all_key_bits:
 						key_bits_error = True
 				except ValueError:
 					key_bits_error = True
 				if key_bits_error:
-					print('key-bits must in (128,192,256)')
+					print('key-bits must in', all_key_bits)
 					sys.exit(1)
 			else:
 				arg = -1
