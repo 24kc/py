@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, hashlib, base64, random
+import sys, base64
 from Crypto.Cipher import AES
 
 __key = None
@@ -15,19 +15,26 @@ __cipher_status = False
 # generate_key('ABCsb') 用密码'ABCsb'生成密钥
 # generate_key(None, 'sbc.key') 生成随机密钥, 并保存密钥为sbc.key
 # generate_key('ABCsb', 'sbc.key') 用密码'ABCsb'生成密钥, 并保存密钥为sbc.key
+
 def generate_key(password='', key_file_name='', key_bits=128):
 	if key_bits not in (128, 192, 256):
 		raise Exception('key_bits Error')
 	key_bytes = key_bits // 8
-	ha = hashlib.sha512()
+
+	from Crypto.Hash import SHA512
+	ha = SHA512.new()
+
 	if not password:
+		from Crypto.Random import random
 		rand_list = []
-		for _ in range(16):
+		for _ in range(24):
 			i = random.randint(0xffff, 0xffffffff)
 			rand_list.append(i)
 		password = str(rand_list)
+
 	ha.update(f'{password} akm 24k ABC'.encode())
 	key = ha.digest()[:key_bytes]
+
 	if key_file_name:
 		with open(key_file_name, 'wb') as key_file:
 			key_file.write(base64.b64encode(key))
