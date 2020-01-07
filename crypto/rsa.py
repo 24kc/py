@@ -40,7 +40,13 @@ def fernet(key):
 	global __block_size_encrypt, __block_size_decrypt
 	hashalgo = MD5
 	__cipher = PKCS1.new(key, hashalgo)
-	key_bytes = (key.size() + 1) // 8
+
+	# fix for termux
+	try:
+		key_bytes = key.size() // 8 + 1
+	except NotImplementedError:
+		key_bytes = key.size_in_bytes()
+
 	__block_size_encrypt = key_bytes - 2 - hashalgo.digest_size * 2
 	__block_size_decrypt = key_bytes
 
