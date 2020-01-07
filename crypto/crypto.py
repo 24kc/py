@@ -17,7 +17,7 @@ all_key_bits = (128, 192, 256)
 # generate_key(None, 'sbc.key') 生成随机密钥, 并保存密钥为sbc.key
 # generate_key('ABCsb', 'sbc.key') 用密码'ABCsb'生成密钥, 并保存密钥为sbc.key
 
-def generate_key(password='', key_file_name='', key_bits=128):
+def generate_key(password='', key_file_name='', key_bits=all_key_bits[0]):
 	if key_bits not in all_key_bits:
 		raise Exception('key_bits Error')
 	key_bytes = key_bits // 8
@@ -131,7 +131,7 @@ def main(argv):
 	is_stdio = False
 	in_file = None; out_file = None; key_file = None
 	password = None
-	key_bits = 128
+	key_bits = all_key_bits[0]
 	is_tty = sys.stdout.isatty()
 
 	while optind+1 < argc:
@@ -271,7 +271,7 @@ def help(argv):
 	print(' -k/-key key_file  Specifying the key file')
 	print(' -p/-password ***  Specifying the password')
 	print(' -keygen           Generate key')
-	print(' -kb/-key-bits %d  Specify key length while Generate key, default=128')
+	print(' -kb/-key-bits %d  Specify key length while Generate key, default =', all_key_bits[0])
 	print(' -h/-help          Display this message')
 
 
