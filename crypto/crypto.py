@@ -9,18 +9,25 @@ __cipher_status = False
 
 # password: 密码
 # key_file_name: 密钥文件保存路径
+# key_bits: must in (128, 192, 256)
 # return: 始终返回一个密钥
 # generate_key() 返回随机密钥
 # generate_key('ABCsb') 用密码'ABCsb'生成密钥
 # generate_key(None, 'sbc.key') 生成随机密钥, 并保存密钥为sbc.key
 # generate_key('ABCsb', 'sbc.key') 用密码'ABCsb'生成密钥, 并保存密钥为sbc.key
-def generate_key(password='', key_file_name=''):
-	ha = hashlib.md5()
+def generate_key(password='', key_file_name='', key_bits=128):
+	if key_bits not in (128, 192, 256):
+		raise Exception('key_bits Error')
+	key_bytes = key_bits // 8
+	ha = hashlib.sha512()
 	if not password:
-		i = random.randint(0xffffffffffffffff, 0xffffffffffffffffffffffffffffffff)
-		password = f'{i}'
-	ha.update(f'{password} akm 24k '.encode())
-	key = ha.digest()
+		rand_list = []
+		for _ in range(16):
+			i = random.randint(0xffff, 0xffffffff)
+			rand_list.append(i)
+		password = str(rand_list)
+	ha.update(f'{password} akm 24k ABC'.encode())
+	key = ha.digest()[:key_bytes]
 	if key_file_name:
 		with open(key_file_name, 'wb') as key_file:
 			key_file.write(base64.b64encode(key))
@@ -41,7 +48,7 @@ def load_key(key_file_name):
 def fernet(key):
 	global __key, __cipher, __cipher_status
 	if (__key != key) or not __cipher_status:
-		__cipher = AES.new(key, AES.MODE_CBC, b' iv - akm24k-abc')
+		__cipher = AES.new(key, AES.MODE_CBC, b'IV - akm 24k ABC')
 		__cipher_status = True
 		__key = key
 
@@ -88,6 +95,7 @@ _stdio = 0x2421
 _key = 0x2431
 _password = 0x2432
 _keygen = 0x2441
+_key_bits = 0x2442
 _help = 0x2451
 
 options = {
@@ -101,6 +109,8 @@ options = {
 	'-p': _password,
 	'-password': _password,
 	'-keygen': _keygen,
+	'-kb': _key_bits,
+	'-key-bits': _key_bits,
 	'-h': _help,
 	'-help': _help
 }
@@ -113,6 +123,7 @@ def main(argv):
 	is_stdio = False
 	in_file = None; out_file = None; key_file = None
 	password = None
+	key_bits = 128
 	is_tty = sys.stdout.isatty()
 
 	while optind+1 < argc:
@@ -156,6 +167,21 @@ def main(argv):
 				keygen = argv[optind]
 			else:
 				arg = -1
+		elif arg == _key_bits:
+			optind += 1
+			if optind < argc:
+				key_bits_error = None
+				try:
+					key_bits = int(argv[optind])
+					if key_bits not in (128,192,256):
+						key_bits_error = True
+				except ValueError:
+					key_bits_error = True
+				if key_bits_error:
+					print('key-bits must in (128,192,256)')
+					sys.exit(1)
+			else:
+				arg = -1
 		elif arg == _stdio:
 			is_stdio = True
 		elif arg == _help:
@@ -170,7 +196,7 @@ def main(argv):
 			sys.exit()
 
 	if keygen:
-		generate_key(password or '', keygen)
+		generate_key(password or '', keygen, key_bits)
 		sys.exit()
 
 	if not in_file and not out_file:
@@ -201,7 +227,7 @@ def main(argv):
 			password = input('Please enter the password: ' if is_tty else '')
 		if not len(password):
 			password = '\n'
-		kbs = generate_key(password)
+		kbs = generate_key(password, '', key_bits)
 
 	fernet(kbs)
 
@@ -237,6 +263,7 @@ def help(argv):
 	print(' -k/-key key_file  Specifying the key file')
 	print(' -p/-password ***  Specifying the password')
 	print(' -keygen           Generate key')
+	print(' -kb/-key-bits %d  Specify key length while Generate key, default=128')
 	print(' -h/-help          Display this message')
 
 
