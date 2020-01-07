@@ -112,6 +112,7 @@ def main(argv):
 	keygen = None
 	is_stdio = False
 	in_file = None; out_file = None; key_file = None
+	is_tty = sys.stdout.isatty()
 
 	while optind+1 < argc:
 		optind += 1
@@ -173,7 +174,7 @@ def main(argv):
 		is_stdio = True
 
 	if is_stdio:
-		s = input('Please enter the text: ')
+		s = input('Please enter the text: ' if is_tty else '')
 		ibs = s.encode()
 		if mode == _DECRYPT:
 			ibs = base64.b64decode(ibs)
@@ -199,7 +200,8 @@ def main(argv):
 		obs = decrypt(ibs)
 
 	if is_stdio:
-		print('Output:')
+		if is_tty:
+			print('Output:')
 		if mode == _ENCRYPT:
 			obs = base64.b64encode(obs)
 		print(obs.decode())
@@ -207,9 +209,10 @@ def main(argv):
 		with open(out_file, 'wb') as out_file:
 			out_file.write(obs)
 
-	if is_stdio:
-		print()
-	print(("Encrypt" if mode == _ENCRYPT else "Decrypt"), "OK")
+	if is_tty:
+		if is_stdio:
+			print()
+		print(("Encrypt" if mode == _ENCRYPT else "Decrypt"), "OK")
 
 
 def help(argv):
