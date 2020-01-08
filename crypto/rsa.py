@@ -41,11 +41,7 @@ def fernet(key):
 	hashalgo = MD5
 	__cipher = PKCS1.new(key, hashalgo)
 
-	# fix for termux
-	try:
-		key_bytes = key.size() // 8 + 1
-	except NotImplementedError:
-		key_bytes = key.size_in_bytes()
+	key_bytes = sizeof_key(key)
 
 	__block_size_encrypt = key_bytes - 2 - hashalgo.digest_size * 2
 	__block_size_decrypt = key_bytes
@@ -94,6 +90,15 @@ def is_private(key):
 	return True if key.has_private() else False
 
 
+# fix for termux
+def sizeof_key(key):
+	try:
+		key_bytes = key.size() // 8 + 1
+	except NotImplementedError:
+		key_bytes = key.size_in_bytes()
+	return key_bytes
+
+
 #####################   main():   #######################
 
 
@@ -109,6 +114,7 @@ _key = 0x2431
 _keygen = 0x2441
 _key_bits = 0x2442
 _help = 0x2451
+_check = 0x2461
 
 options = {
 	'-e': _e,
@@ -121,6 +127,8 @@ options = {
 	'-keygen': _keygen,
 	'-kb': _key_bits,
 	'-key-bits': _key_bits,
+	'-c': _check,
+	'-check': _check,
 	'-h': _help,
 	'-help': _help
 }
@@ -187,16 +195,31 @@ def main(argv):
 				arg = -1
 		elif arg == _stdio:
 			is_stdio = True
+		elif arg == _check:
+			optind += 1
+			if optind < argc:
+				key_file = argv[optind]
+				try:
+					key = load_key(key_file)
+					fernet(key)
+					print('Public' if is_public(key) else 'Private', 'Key')
+					print('key bits =', sizeof_key(key)*8)
+				except:
+					print('key format error')
+					sys.exit(1)
+				sys.exit()
+			else:
+				arg = -1
 		elif arg == _help:
 			help(argv)
 			sys.exit()
 		else:
 			print('getopt error')
-			sys.exit()
+			sys.exit(1)
 
 		if arg < 0:
 			print('missing argument after \''+argstr+'\'')
-			sys.exit()
+			sys.exit(1)
 
 	if keygen:
 		generate_key(keygen, key_bits)
@@ -225,7 +248,7 @@ def main(argv):
 			ibs = in_file.read()
 	if not len(ibs):
 		print('No input data')
-		sys.exit()
+		sys.exit(1)
 
 	key = load_key(key_file)
 	fernet(key)
@@ -259,9 +282,10 @@ def help(argv):
 	print(' -in in_file       Input file')
 	print(' -out out_file     Output file')
 	print(' -stdio            Standard input and output')
-	print(' -k/-key key_file  Specifying the key file')
+	print(' -k/-key key       Specifying the key file')
 	print(' -keygen           Generate key')
 	print(' -kb/-key-bits %d  Specify key length while Generate key, default =', all_key_bits[0])
+	print(' -c/-check key     check key format')
 	print(' -h/-help          Display this message')
 
 
