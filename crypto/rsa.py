@@ -201,7 +201,7 @@ def main(argv):
 				key_file = argv[optind]
 				try:
 					key = load_key(key_file)
-					fernet(key)
+					# fernet(key)
 					print('Public' if is_public(key) else 'Private', 'Key')
 					print('key bits =', sizeof_key(key)*8)
 				except:
