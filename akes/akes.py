@@ -261,7 +261,9 @@ def main(argv):
 			print('Output:')
 		if mode == _ENCRYPT:
 			obs = base64.b64encode(obs)
-		print(obs.decode())
+		print(obs.decode(), end='')
+		if is_tty:
+			print()
 	else:
 		with open(out_file, 'wb') as out_file:
 			out_file.write(obs)
