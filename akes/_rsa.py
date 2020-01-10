@@ -20,13 +20,13 @@ class RSA(AKES):
 		if key_bits not in self.all_key_bits:
 			raise Exception('key_bits Error')
 
-		rsa = Cipher.generate(key_bits)
-
 		key_file = kwargs.get('key_file')
 		password = kwargs.get('password')
 
 		if password:
 			raise TypeError('AKES RSA must load key from file')
+
+		rsa = Cipher.generate(key_bits)
 
 		if key_file:
 			with open(key_file, 'wb') as f:

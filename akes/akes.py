@@ -5,7 +5,7 @@ import sys, base64
 
 __all_supported = ('AES', 'RSA')
 
-__all__ = __all_supported + ('AKES',)
+__all__ = __all_supported + ('AKES', 'main')
 
 __constructor_cache = {}
 
