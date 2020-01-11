@@ -297,10 +297,6 @@ def help(argv, akes):
 	print(' -h/-help          Display this message')
 
 
-if __name__ == '__main__':
-	main(sys.argv)
-
-
 # Cleanup locals()
 # del __all_supported
 # del _ENCRYPT, _DECRYPT
