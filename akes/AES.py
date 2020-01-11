@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import base64
-from akes import AKES
+from akes.Akes import AKES
 from Crypto.Cipher import AES as Cipher
 
 _all_key_bits = (128, 192, 256)
@@ -17,7 +17,7 @@ class AES(AKES):
 		if not key_bits:
 			key_bits = self.all_key_bits[0]
 		if key_bits not in self.all_key_bits:
-			raise Exception('key_bits Error')
+			raise ValueError('key_bits Error')
 		key_bytes = key_bits // 8
 	
 		from Crypto.Hash import SHA512 as hashalgo
@@ -69,7 +69,7 @@ class AES(AKES):
 	# 加密bytes 返回bytes
 	def encrypt(self, b):
 		if self.__cipher == None:
-			raise Exception('no key is set')
+			raise ValueError('no key is set')
 		n = 16 - len(b) % 16
 		b = b + bytes([n]) * n
 		self.fernet(self.__key)
@@ -81,13 +81,13 @@ class AES(AKES):
 	# 解密bytes 返回bytes
 	def decrypt(self, b):
 		if self.__cipher == None:
-			raise Exception('no key is set')
+			raise ValueError('no key is set')
 		self.fernet(self.__key)
 		b = self.__cipher.decrypt(b)
 		self.__cipher_status = False
 		n = b[-1]
 		if not (0 < n and n <= 16):
-			raise Exception(f'Padding error {n}')
+			raise ValueError(f'Padding error {n}')
 		b = b[:-n]
 		return b
 

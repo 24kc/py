@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys, base64
-from akes import AKES
+from akes.Akes import AKES
 from Crypto.PublicKey import RSA as Cipher
 
 _all_key_bits = (2048, 2560, 3072, 4096, 5120, 7680, 10240, 15360, 20480, 25600)
@@ -18,13 +18,14 @@ class RSA(AKES):
 		if not key_bits:
 			key_bits = self.all_key_bits[0]
 		if key_bits not in self.all_key_bits:
-			raise Exception('key_bits Error')
+			raise ValueError('key_bits Error')
 
 		key_file = kwargs.get('key_file')
 		password = kwargs.get('password')
 
 		if password:
-			raise TypeError('AKES RSA must load key from file')
+			raise ValueError('akes RSA does not support generating keys with passwords \
+and use key load from file when encrypting/decrypting')
 
 		rsa = Cipher.generate(key_bits)
 
@@ -40,9 +41,9 @@ class RSA(AKES):
 		with open(key_file, 'rb') as f:
 			key = Cipher.importKey(f.read())
 		key_attr = {}
-		key_bits = sizeof_key(key) * 8
+		key_bits = _sizeof_key(key) * 8
 		key_attr['key_bits'] = key_bits
-		key_attr['key_type'] = 'Public' if is_public(key) else 'Private'
+		key_attr['key_type'] = 'Public' if _is_public(key) else 'Private'
 		return key, key_attr
 	
 	
@@ -56,7 +57,7 @@ class RSA(AKES):
 		hashalgo = HashAlgo
 		self.__cipher = PKCS1.new(key, hashalgo)
 	
-		key_bytes = sizeof_key(key)
+		key_bytes = _sizeof_key(key)
 	
 		self.__block_size_encrypt = key_bytes - 2 - hashalgo.digest_size * 2
 		self.__block_size_decrypt = key_bytes
@@ -92,20 +93,20 @@ class RSA(AKES):
 		return bytes(ba)
 	
 	
-#####################   rsa():    #######################
+#####################   RSA:    #######################
 	
 	
-def is_public(key):
+def _is_public(key):
 	''' return key == public_key ? True : False '''
-	return True if not is_private(key) else False
+	return True if not _is_private(key) else False
 	
 	
-def is_private(key):
+def _is_private(key):
 	''' return key == private_key ? True : False '''
 	return True if key.has_private() else False
 	
 	
-def sizeof_key(key):
+def _sizeof_key(key):
 	''' fix for termux '''
 	try:
 		key_bytes = key.size() // 8 + 1

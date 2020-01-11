@@ -5,7 +5,7 @@ import sys, base64
 
 __all_supported = ('AES', 'RSA')
 
-__all__ = __all_supported + ('AKES', 'main')
+__all__ = ('new', 'AKES', 'main')
 
 __constructor_cache = {}
 
@@ -19,10 +19,10 @@ def __get_constructor(name):
 		return constructor
 	try:
 		if name in ('AES', 'aes'):
-			import _aes
+			from akes import AES as _aes
 			cache['AES'] = cache['aes'] = _aes.AES
 		elif name in ('RSA', 'rsa'):
-			import _rsa
+			from akes import RSA as _rsa
 			cache['RSA'] = cache['rsa'] = _rsa.RSA
 	except ImportError:
 		pass  # no extension module, this Encryption is unsupported.
@@ -37,18 +37,22 @@ def __get_constructor(name):
 class AKES:
 	'''A generic class for AKM Encryption Standard
 
-	:undocumented: None
+	:undocumented: ...
 	'''
 
 	#: All supported key bits.
 	all_key_bits = ()
 
 	def generate_key(self, key_bits=0, **kwargs):
-		'''kwargs: key_file, password'''
+		'''kwargs: key_file, password
+			return key
+		'''
 		raise NotImplementedError
 
 	def load_key(self, key_file):
-		'''load key from key_file'''
+		'''load key from key_file
+			return key, key_attr
+		'''
 		raise NotImplementedError
 
 	def fernet(self, key):
@@ -210,8 +214,11 @@ def main(argv):
 
 	if not key_file:
 		try:
-			akes.generate_key(password='\n')
-		except TypeError as e:
+			if keygen and not password:
+				pass
+			else:
+				akes.generate_key(password='\n')
+		except ValueError as e:
 			print(e)
 			sys.exit(1)
 
